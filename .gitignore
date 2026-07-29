@@ -1,0 +1,44 @@
+# ── Python ────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ── Virtual Environments ───────────────────────────────────────────────────
+venv/
+.venv/
+env/
+ENV/
+
+# ── Environment / Secrets ──────────────────────────────────────────────────
+.env
+*.env
+
+# ── Generated Data / Artifacts ────────────────────────────────────────────
+data/selector_store.json
+logs/
+artifacts/screenshots/
+artifacts/*.md
+artifacts/*.json
+# (but keep the .gitkeep)
+!artifacts/.gitkeep
+
+# ── IDEs ──────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ── OS ────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Pytest / Coverage ─────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
