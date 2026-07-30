@@ -171,6 +171,7 @@ class SelectorHealer:
         self._artifact_writer = artifact_writer
         self._api_key = api_key or os.getenv("GOOGLE_API_KEY", "")
         _SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
+        self.last_screenshot_path: Optional[Path] = None
 
     def heal(
         self,
@@ -197,6 +198,7 @@ class SelectorHealer:
         ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         screenshot_path = _SCREENSHOT_DIR / f"before_heal_{task_label}_{ts}.png"
         self._browser.screenshot(screenshot_path)
+        self.last_screenshot_path = screenshot_path
 
         # 2. Grab page HTML snippet
         html_snippet = self._browser.get_page_source()[:3000]
