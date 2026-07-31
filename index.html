@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Self-Healing Web Agent - Redirecting...</title>
+    <!-- Automatically redirect to the Vanilla JS Dashboard which doesn't require Vite/Node.js -->
+    <meta http-equiv="refresh" content="0; url=./dashboard_vanilla/index.html">
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        a {
+            color: #06b6d4;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h2>Redirecting to the Dashboard...</h2>
+        <p>If you are not redirected automatically, <a href="./dashboard_vanilla/index.html">click here to open the dashboard</a>.</p>
+        <p style="color: #94a3b8; font-size: 0.9em; margin-top: 20px;">
+            Note: The React dashboard (`/dashboard`) requires Node.js and Vite to run (`npm run dev`). <br>
+            We are redirecting you to the Vanilla JS version which works natively with your Live Server.
+        </p>
+    </div>
+</body>
+</html>

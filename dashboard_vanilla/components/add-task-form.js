@@ -41,9 +41,12 @@ function initAddTaskForm() {
         e.preventDefault();
 
         const url = document.getElementById('input-url').value.trim();
-        const selector = document.getElementById('input-selector').value.trim();
-        const label = document.getElementById('input-label').value.trim();
-        const interval = parseInt(document.getElementById('input-interval').value.trim(), 10) || 300;
+        const typeSelect = document.getElementById('input-type');
+        const selector = typeSelect.value;
+        // Generate a clean task label from the dropdown text (e.g. "Page Title" -> "page_title")
+        const rawLabel = typeSelect.options[typeSelect.selectedIndex].text;
+        const label = rawLabel.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/_$/, '');
+        const interval = 300; // Default 5 mins
 
         try {
             showToast('Adding monitoring task…', 'info');

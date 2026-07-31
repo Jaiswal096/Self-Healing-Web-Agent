@@ -1,21 +1,17 @@
 {
   "manifest_version": 3,
-  "name": "Self-Healing Web Agent Monitor",
+  "name": "AutoHeal Agent",
   "version": "1.0.0",
-  "description": "Monitor web pages and register tasks for the Self-Healing Web Agent.",
+  "description": "Monitor web pages and integrate with Self-Healing Web Agent.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "AutoHeal Agent"
+  },
   "permissions": [
     "activeTab",
     "storage"
   ],
-  "action": {
-    "default_popup": "popup.html",
-    "default_icon": {
-      "16": "icon.png",
-      "48": "icon.png",
-      "128": "icon.png"
-    }
-  },
-  "background": {
-    "service_worker": "background.js"
-  }
+  "host_permissions": [
+    "http://localhost:8000/*"
+  ]
 }

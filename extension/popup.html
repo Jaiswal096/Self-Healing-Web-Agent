@@ -3,93 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Self-Healing Web Agent Monitor</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>AutoHeal Agent</title>
+  <link rel="stylesheet" href="popup.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="popup-container">
-    <!-- Header -->
+  <div class="container">
     <header class="header">
-      <div class="logo-area">
-        <div class="logo-icon">🕷️</div>
-        <div class="logo-text">
-          <h1>Self-Healing Agent</h1>
-          <span class="sub-text">Active Monitoring Extension</span>
-        </div>
+      <div class="logo">
+        <svg class="icon-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          <path d="m9 12 2 2 4-4"></path>
+        </svg>
+        <span class="logo-text">AutoHeal</span>
       </div>
-      <div id="connection-badge" class="badge badge-disconnected">Checking Server...</div>
+      <div class="status-indicator">
+        <div class="status-dot" id="auth-status-dot"></div>
+        <span class="status-text" id="auth-status-text">Checking...</span>
+      </div>
     </header>
 
-    <!-- Auth Panel -->
-    <section class="panel auth-panel">
-      <div class="panel-header">
-        <h2>Integration Status</h2>
-        <span id="auth-status-badge" class="badge badge-unauthorized">Unauthorized</span>
+    <main class="main-content">
+      <div class="current-url-container">
+        <span class="label">Current Tab</span>
+        <div class="url-display" id="current-url" title="Loading URL...">Loading...</div>
       </div>
-      <div class="panel-body">
-        <p class="panel-desc">Authorize this extension to allow session monitoring and proposed selector modifications.</p>
-        <button id="auth-btn" class="btn btn-secondary btn-full">Request Connection Authorization</button>
-      </div>
-    </section>
+      
+      <button id="monitor-btn" class="btn-primary" disabled>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20V10"></path>
+          <path d="M18 20V4"></path>
+          <path d="M6 20v-4"></path>
+        </svg>
+        <span>Monitor This Page</span>
+      </button>
 
-    <!-- Configuration Panel -->
-    <section class="panel config-panel">
-      <div class="panel-header">
-        <h2>Target Page Configuration</h2>
-      </div>
-      <div class="panel-body">
-        <!-- Server Input -->
-        <div class="form-group">
-          <label for="server-url">Agent Server URL</label>
-          <input type="url" id="server-url" value="http://localhost:8000" placeholder="http://localhost:8000">
-        </div>
+      <div id="action-feedback" class="feedback hidden"></div>
+    </main>
 
-        <!-- Detected URL -->
-        <div class="form-group">
-          <label>Active Tab URL</label>
-          <div class="url-display-box">
-            <span id="active-url" class="url-text">Loading active tab...</span>
-          </div>
-        </div>
-
-        <!-- Task Label Input -->
-        <div class="form-group">
-          <label for="task-label">Task Label</label>
-          <input type="text" id="task-label" placeholder="e.g., product_price">
-        </div>
-
-        <!-- Initial Selector Input -->
-        <div class="form-group">
-          <label for="selector">Target CSS Selector</label>
-          <input type="text" id="selector" placeholder="e.g., .price-value or #price">
-        </div>
-
-        <!-- Interval Selector -->
-        <div class="form-group">
-          <label for="interval">Check Interval</label>
-          <select id="interval">
-            <option value="60">Every 1 minute</option>
-            <option value="300" selected>Every 5 minutes</option>
-            <option value="600">Every 10 minutes</option>
-            <option value="1800">Every 30 minutes</option>
-            <option value="3600">Every 1 hour</option>
-          </select>
-        </div>
-
-        <!-- Action Button -->
-        <button id="register-task-btn" class="btn btn-primary btn-full" disabled>
-          <span class="btn-icon">➕</span>
-          Add Page to Monitoring Queue
-        </button>
-      </div>
-    </section>
-
-    <!-- Footer Status / Navigation -->
     <footer class="footer">
-      <a href="#" id="open-dashboard-lnk" class="footer-link">
-        <span>🖥️</span> Open Web Platform Dashboard
+      <a href="http://localhost:5173" target="_blank" class="link-dashboard">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="7" height="9" x="3" y="3" rx="1"></rect>
+          <rect width="7" height="5" x="14" y="3" rx="1"></rect>
+          <rect width="7" height="9" x="14" y="12" rx="1"></rect>
+          <rect width="7" height="5" x="3" y="16" rx="1"></rect>
+        </svg>
+        Open Dashboard
       </a>
-      <div class="version-text">v1.0.0 (MVP)</div>
     </footer>
   </div>
   <script src="popup.js"></script>

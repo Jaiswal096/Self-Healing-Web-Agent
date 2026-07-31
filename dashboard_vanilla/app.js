@@ -12,6 +12,7 @@ const REFRESH_INTERVAL = 5000; // 5 seconds
 
 const state = {
     tasks: [],
+    mockTasks: [],
     approvals: [],
     artifacts: [],
     status: null,
@@ -46,10 +47,63 @@ const api = {
     getStatus: () => apiRequest('/status'),
 
     // Tasks
-    listTasks: () => apiRequest('/tasks'),
-    createTask: (data) => apiRequest('/tasks', { method: 'POST', body: JSON.stringify(data) }),
-    deleteTask: (id) => apiRequest(`/tasks/${id}`, { method: 'DELETE' }),
-    runTask: (id) => apiRequest(`/tasks/${id}/run`, { method: 'POST' }),
+    // Tasks
+    listTasks: async () => {
+        if (typeof supabaseClient !== 'undefined' && currentUser) {
+            const { data, error } = await supabaseClient.from('tasks').select('*').eq('user_id', currentUser.id);
+            if (!error) return { tasks: data };
+        }
+        return apiRequest('/tasks');
+    },
+    createTask: async (data) => {
+        if (typeof supabaseClient !== 'undefined' && currentUser) {
+            const { error } = await supabaseClient.from('tasks').insert([{ 
+                ...data, 
+                user_id: currentUser.id,
+                status: 'active',
+                last_check: 'Just now'
+            }]);
+            if (!error) return { success: true };
+        }
+        try {
+            return await apiRequest('/tasks', { method: 'POST', body: JSON.stringify(data) });
+        } catch (e) {
+            console.warn("Backend offline, saving task to local mock state.");
+            state.mockTasks.push({ id: 'mock_' + Date.now(), status: 'active', last_check: 'Just now', heal_count: 0, ...data });
+            return { success: true, mock: true };
+        }
+    },
+    deleteTask: async (id) => {
+        if (typeof supabaseClient !== 'undefined' && currentUser && typeof id === 'string' && !id.startsWith('mock_')) {
+            const { error } = await supabaseClient.from('tasks').delete().eq('id', id);
+            if (!error) return { success: true };
+        }
+        try {
+            return await apiRequest(`/tasks/${id}`, { method: 'DELETE' });
+        } catch (e) {
+            console.warn("Backend offline, deleting task from local mock state.");
+            state.mockTasks = state.mockTasks.filter(t => t.id !== id);
+            return { success: true, mock: true };
+        }
+    },
+    runTask: async (id) => {
+        if (typeof supabaseClient !== 'undefined' && currentUser && typeof id === 'string' && !id.startsWith('mock_')) {
+            const { error } = await supabaseClient.from('tasks').update({ last_check: 'Just now' }).eq('id', id);
+            if (!error) return { success: true };
+        }
+        try {
+            return await apiRequest(`/tasks/${id}/run`, { method: 'POST' });
+        } catch (e) {
+            console.warn("Backend offline, simulating task run in local mock state.");
+            const task = state.mockTasks.find(t => t.id === id);
+            if (task) {
+                task.last_check = 'Just now (Mock)';
+                task.status = 'active';
+            }
+            await new Promise(resolve => setTimeout(resolve, 800));
+            return { success: true, mock: true };
+        }
+    },
 
     // Approvals
     listApprovals: () => apiRequest('/approvals'),
@@ -215,7 +269,11 @@ async function refresh() {
     } catch (err) {
         // Still show demo state if disconnected
         if (!state.connected) {
-            setConnectionStatus('error', 'API Offline');
+            setConnectionStatus('error', 'API Offline (Local Mode)');
+            // Render mock tasks so the UI works
+            state.tasks = [...state.mockTasks];
+            renderTasks(state.tasks);
+            updateStats({ total_tasks: state.tasks.length, approvals: { pending: 0 }, total_heals: 0, monitor_active: true });
         }
     }
 }

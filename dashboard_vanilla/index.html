@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Self-Healing Web Agent — Monitor, heal, and manage autonomous web scrapers from a single dashboard.">
+    <title>Self-Healing Web Agent — Dashboard</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!-- ─── Header ──────────────────────────────────────────────────── -->
+    <header id="app-header">
+        <div class="header-left">
+            <div class="logo">
+                <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+                    <circle cx="16" cy="16" r="14" stroke="url(#grad)" stroke-width="2.5"/>
+                    <path d="M10 16 L14 20 L22 12" stroke="url(#grad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs>
+                        <linearGradient id="grad" x1="0" y1="0" x2="32" y2="32">
+                            <stop offset="0%" stop-color="#06b6d4"/>
+                            <stop offset="100%" stop-color="#8b5cf6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <h1>Self-Healing Agent</h1>
+            </div>
+            <span class="version-badge">MVP v0.1</span>
+        </div>
+        <div class="header-right">
+            <div class="auth-info" style="display: flex; align-items: center; gap: 1rem; margin-right: 1.5rem; font-size: 0.875rem;">
+                <span id="user-email" style="color: #94a3b8;"></span>
+                <button id="btn-logout" class="btn btn-ghost btn-sm">Sign Out</button>
+            </div>
+            <div class="connection-status" id="connection-status">
+                <span class="status-dot"></span>
+                <span class="status-text">Connecting…</span>
+            </div>
+            <button class="btn btn-primary" id="btn-add-task" aria-label="Add new monitoring task">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Add Task
+            </button>
+        </div>
+    </header>
+
+    <!-- ─── Stats Bar ───────────────────────────────────────────────── -->
+    <section id="stats-bar">
+        <div class="stat-card" id="stat-active">
+            <div class="stat-icon stat-icon-active">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M10 6v4l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value" id="stat-active-count">0</span>
+                <span class="stat-label">Active Agents</span>
+            </div>
+        </div>
+        <div class="stat-card" id="stat-pending">
+            <div class="stat-icon stat-icon-pending">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M10 2a8 8 0 100 16 8 8 0 000-16z" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M10 6v5M10 14h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value" id="stat-pending-count">0</span>
+                <span class="stat-label">Pending Approvals</span>
+            </div>
+        </div>
+        <div class="stat-card" id="stat-healed">
+            <div class="stat-icon stat-icon-healed">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M7 10l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value" id="stat-healed-count">0</span>
+                <span class="stat-label">Total Heals</span>
+            </div>
+        </div>
+        <div class="stat-card" id="stat-monitor">
+            <div class="stat-icon stat-icon-monitor">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <rect x="2" y="3" width="16" height="11" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M7 17h6M10 14v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value" id="stat-monitor-status">—</span>
+                <span class="stat-label">Monitor Status</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── Main Content ────────────────────────────────────────────── -->
+    <main id="main-content">
+        <!-- Approvals Section -->
+        <section id="approvals-section" class="content-section hidden">
+            <div class="section-header">
+                <h2>⚠️ Pending Approvals</h2>
+                <span class="badge badge-warning" id="approval-badge">0</span>
+            </div>
+            <div id="approvals-list" class="approvals-grid">
+                <!-- Filled by JS -->
+            </div>
+        </section>
+
+        <!-- Tasks Section -->
+        <section id="tasks-section" class="content-section">
+            <div class="section-header">
+                <h2>🕷️ Monitoring Tasks</h2>
+                <div class="section-actions">
+                    <button class="btn btn-ghost btn-sm" id="btn-refresh" title="Refresh">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                            <path d="M1 7a6 6 0 0111.2-3M13 7a6 6 0 01-11.2 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M13 1v3h-3M1 13v-3h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="tasks-grid" class="tasks-grid">
+                <!-- Filled by JS -->
+            </div>
+            <div id="empty-state" class="empty-state">
+                <div class="empty-icon">🕷️</div>
+                <h3>No monitoring tasks yet</h3>
+                <p>Click <strong>"Add Task"</strong> to start monitoring a website for changes.</p>
+            </div>
+        </section>
+
+        <!-- Artifacts Section -->
+        <section id="artifacts-section" class="content-section">
+            <div class="section-header">
+                <h2>📋 Self-Healing Event History</h2>
+            </div>
+            <div id="artifacts-list" class="artifacts-list-container">
+                <!-- Filled by JS -->
+            </div>
+            <div id="artifacts-empty-state" class="empty-state">
+                <div class="empty-icon">📋</div>
+                <h3>No healing events recorded</h3>
+                <p>Artifact reports will appear here when the agent heals broken selectors.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- ─── Add Task Modal ──────────────────────────────────────────── -->
+    <div class="modal-overlay" id="modal-add-task">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Add Monitoring Task</h3>
+                <button class="btn-close" id="btn-close-add-task" aria-label="Close">&times;</button>
+            </div>
+            <form id="form-add-task" class="modal-body">
+                <div class="form-group">
+                    <label for="input-url">Target URL</label>
+                    <input type="url" id="input-url" placeholder="https://example.com" required>
+                    <span class="form-hint">The webpage to monitor for changes</span>
+                </div>
+                <div class="form-group">
+                    <label for="input-type">What to monitor</label>
+                    <select id="input-type" required style="width: 100%; padding: 0.75rem; background: rgba(15, 23, 42, 0.5); border: 1px solid #334155; border-radius: 0.5rem; color: #f8fafc; font-size: 0.875rem; margin-top: 0.5rem; margin-bottom: 0.25rem;">
+                        <option value="title">Page Title</option>
+                        <option value="meta[name='description']">SEO Description</option>
+                        <option value="h1">Main Heading (H1)</option>
+                        <option value="a">First Link</option>
+                        <option value="button">First Button</option>
+                    </select>
+                    <span class="form-hint">Select the element on the page you want to track</span>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost" id="btn-cancel-add-task">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Start Monitoring</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ─── Approval Modal ──────────────────────────────────────────── -->
+    <div class="modal-overlay" id="modal-approval">
+        <div class="modal modal-wide">
+            <div class="modal-header">
+                <h3>Review Proposed Change</h3>
+                <button class="btn-close" id="btn-close-approval" aria-label="Close">&times;</button>
+            </div>
+            <div class="modal-body" id="approval-detail">
+                <!-- Filled by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── Login Modal ──────────────────────────────────────────── -->
+    <div class="modal-overlay" id="modal-login" style="display: flex; z-index: 1000; background: #0f172a;">
+        <div class="modal" style="width: 100%; max-width: 400px;">
+            <div class="modal-header">
+                <h3>Welcome to AutoHeal Agent</h3>
+            </div>
+            <form id="form-login" class="modal-body">
+                <div class="form-group">
+                    <label for="input-email">Email</label>
+                    <input type="email" id="input-email" required placeholder="you@example.com" style="width: 100%; padding: 0.75rem; background: rgba(15, 23, 42, 0.5); border: 1px solid #334155; border-radius: 0.5rem; color: #f8fafc; font-size: 0.875rem; margin-top: 0.5rem;">
+                </div>
+                <div class="form-group">
+                    <label for="input-password">Password</label>
+                    <input type="password" id="input-password" required placeholder="••••••••" style="width: 100%; padding: 0.75rem; background: rgba(15, 23, 42, 0.5); border: 1px solid #334155; border-radius: 0.5rem; color: #f8fafc; font-size: 0.875rem; margin-top: 0.5rem;">
+                </div>
+                <div class="form-group" style="flex-direction: row; align-items: center; gap: 0.5rem;">
+                    <input type="checkbox" id="toggle-signup" style="width: auto;">
+                    <label for="toggle-signup" style="margin: 0; font-weight: normal; cursor: pointer;">Create a new account</label>
+                </div>
+                <div class="modal-actions" style="margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Continue</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ─── Toast container ─────────────────────────────────────────── -->
+    <div id="toast-container"></div>
+
+    <!-- ─── Scripts ─────────────────────────────────────────────────── -->
+    <script src="auth.js"></script>
+    <script src="components/agent-card.js"></script>
+    <script src="components/approval-modal.js"></script>
+    <script src="components/add-task-form.js"></script>
+    <script src="components/artifact-viewer.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
